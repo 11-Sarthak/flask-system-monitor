@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .card {
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            width: 400px;
+            box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2);
+        }
+        .utilization {
+            font-size: 40px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .warning {
+            color: red;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        canvas {
+            width: 100%;
+            max-width: 350px;
+        }
+    </style>
+</head>
+<body>
+    <h1>System Monitoring</h1>
+
+    <div class="container">
+        <div class="card">
+            <h2>CPU Utilization</h2>
+            <canvas id="cpuChart"></canvas>
+            <p class="utilization" id="cpuText">{{ cpu_utilization }}%</p>
+        </div>
+        <div class="card">
+            <h2>Memory Utilization</h2>
+            <canvas id="memoryChart"></canvas>
+            <p class="utilization" id="memoryText">{{ mem_utilization }}%</p>
+        </div>
+    </div>
+
+    {% if cpu_utilization >= 80 or mem_utilization >= 80 %}
+        <p class="warning">⚠ High CPU or Memory utilization detected! ⚠</p>
+    {% endif %}
+
+    <script>
+        // Function to create gauge charts
+        function createGaugeChart(ctx, value, label) {
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [value, 100 - value],
+                        backgroundColor: ['#4CAF50', '#222'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    cutout: '80%',
+                    plugins: {
+                        tooltip: { enabled: false },
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Get CPU & Memory values
+        let cpuValue = {{ cpu_utilization }};
+        let memoryValue = {{ mem_utilization }};
+
+        // Create Charts
+        let cpuChart = createGaugeChart(document.getElementById('cpuChart').getContext('2d'), cpuValue, "CPU Usage");
+        let memoryChart = createGaugeChart(document.getElementById('memoryChart').getContext('2d'), memoryValue, "Memory Usage");
+    </script>
+</body>
+</html>
+
